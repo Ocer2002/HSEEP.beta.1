@@ -4192,7 +4192,10 @@ function renderBentoHero(exs) {
               || exs[0];
   const totalLocked = exs.reduce((sum, e) => sum + e.__summary.lockedObj, 0);
   const totalEvaled = exs.reduce((sum, e) => sum + e.__summary.evaledObj, 0);
-  const openIpItems = exs.reduce((sum, e) => sum + ((e.data.aar && e.data.aar.ipItems) ? e.data.aar.ipItems.filter(i => i.correctiveAction && !i.completed).length : 0), 0);
+  // v0.7 fix: IP items track completion via .status === 'done' (the Stage 9
+  // status select) — no .completed flag is ever written, so the old check
+  // could never decrement this tile.
+  const openIpItems = exs.reduce((sum, e) => sum + ((e.data.aar && e.data.aar.ipItems) ? e.data.aar.ipItems.filter(i => i.correctiveAction && i.status !== 'done').length : 0), 0);
 
   // Mini ribbon: exercises plotted by real target date when set, otherwise by
   // a projection from last-updated + remaining stages * 12 days.
@@ -4608,7 +4611,7 @@ function renderIPPW() {
   `).join('');
   return `
     <div class="stage-eyebrow">Stage 01 · 階段一</div>
-    <h1 class="stage-title">Integrated Preparedness Planning Workshop</h1>
+    <h1 class="stage-title"><span class="stage-title-en">Integrated Preparedness Planning Workshop</span></h1>
     <div class="stage-title-zh">整合性整備規劃工作坊（IPPW / IPP）</div>
     <p class="stage-lede">Capture the <em>threats, hazards, prior gaps, and leadership priorities</em> that will drive the choice of exercise. Nothing here is committed yet — this is the evidence base the CO Meeting will reason from.<br><span class="lede-zh">盤點將影響演習選擇的<em>威脅、危害、過往缺失與高階主管優先事項</em>。此階段尚未做出任何決定，而是作為概念與目標會議據以推論的依據。</span></p>
 
@@ -4684,7 +4687,7 @@ function renderCO() {
 
   return `
     <div class="stage-eyebrow">Stage 02 · 階段二</div>
-    <h1 class="stage-title">Concept &amp; Objectives Meeting</h1>
+    <h1 class="stage-title"><span class="stage-title-en">Concept &amp; Objectives Meeting</span></h1>
     <div class="stage-title-zh">概念與目標會議（C&amp;O Meeting）</div>
     <p class="stage-lede">This is where the exercise <em>actually gets defined</em>. Confirm the type, choose the mission area, and draft the objectives. The IPM will refine them into SMART form.<br><span class="lede-zh">演習於此階段<em>正式成形</em>。確認演習類型、選擇任務領域並草擬目標，後續初步規劃會議（IPM）會將其精煉為 SMART 目標。</span></p>
 
@@ -4803,7 +4806,7 @@ function renderIPM() {
 
   return `
     <div class="stage-eyebrow">Stage 03 · 階段三</div>
-    <h1 class="stage-title">Initial Planning Meeting</h1>
+    <h1 class="stage-title"><span class="stage-title-en">Initial Planning Meeting</span></h1>
     <div class="stage-title-zh">初步規劃會議（IPM）</div>
     <p class="stage-lede">Take the draft objectives from CO and make them <em>SMART</em>. Lock each one when it is ready — locked objectives become the basis for the MSEL and the EEGs.<br><span class="lede-zh">將概念與目標會議草擬的目標轉化為 <em>SMART 目標</em>，完成後逐一鎖定；鎖定後的目標即成為主要境況清單（MSEL）與演習評核指引（EEG）的依據。</span></p>
 
@@ -4989,7 +4992,7 @@ function renderMPM() {
 
   return `
     <div class="stage-eyebrow">Stage 04 · 階段四</div>
-    <h1 class="stage-title">Mid-term Planning Meeting</h1>
+    <h1 class="stage-title"><span class="stage-title-en">Mid-term Planning Meeting</span></h1>
     <div class="stage-title-zh">中期規劃會議（MPM）</div>
     <p class="stage-lede">Take the locked objectives from IPM and <em>build the scenario around them</em>. Decompose into modules, set the evaluation strategy, and confirm the direction for the MSEL.<br><span class="lede-zh">取用 IPM 已鎖定的目標，<em>據以建構情境</em>：拆解為情境模組、訂定評核策略，並確認主要境況清單（MSEL）的發展方向。</span></p>
 
@@ -5172,7 +5175,7 @@ function renderMSELOperations() {
 
   return `
     <div class="stage-eyebrow">Stage 05 · 階段五</div>
-    <h1 class="stage-title">MSEL Meeting</h1>
+    <h1 class="stage-title"><span class="stage-title-en">MSEL Meeting</span></h1>
     <div class="stage-title-zh">主要境況清單會議（MSEL Meeting）</div>
     <p class="stage-lede">Build the <em>Master Scenario Events List</em>. Every inject anchors to a scenario module and at least one locked objective — that's how evaluation traces back to capability.<br><span class="lede-zh">建立<em>主要境況清單（MSEL）</em>。每則即時狀況（inject）都對應一個情境模組及至少一項已鎖定目標，使評核結果得以回溯至核心能力。</span></p>
 
@@ -5209,7 +5212,6 @@ function renderMSELOperations() {
     <div class="field-group">
       <div class="field-label">
         <span class="field-label-text">Injects</span><span class="field-label-zh">即時狀況</span>
-        <span class="field-label-zh">即時狀況</span>
       </div>
       ${injectCards}
       ${hasPrereqs ? '<button class="add-btn" id="addInjectBtn">Add inject · 新增即時狀況</button>' : ''}
@@ -5261,7 +5263,7 @@ function renderDiscussionPlan() {
 
   return `
     <div class="stage-eyebrow">Stage 05 · 階段五</div>
-    <h1 class="stage-title">Scenario &amp; Discussion Questions</h1>
+    <h1 class="stage-title"><span class="stage-title-en">Scenario &amp; Discussion Questions</span></h1>
     <div class="stage-title-zh">情境與研討問題（討論型演習）</div>
     <p class="stage-lede">This is a <em>discussion-based</em> exercise, so there is no Master Scenario Events List. Instead, write the <em>scenario narrative</em> participants will respond to, and the <em>discussion questions</em> the facilitator will pose for each objective.<br><span class="lede-zh">此為討論型演習，不建立主要境況清單（MSEL）。請改為撰寫提供給參演者的<em>情境敘事</em>，以及促導員針對各目標提出的<em>研討問題</em>。</span></p>
 
@@ -5410,7 +5412,7 @@ function renderFPM() {
 
   return `
     <div class="stage-eyebrow">Stage 06 · 階段六</div>
-    <h1 class="stage-title">Final Planning Meeting</h1>
+    <h1 class="stage-title"><span class="stage-title-en">Final Planning Meeting</span></h1>
     <div class="stage-title-zh">最終規劃會議（FPM）</div>
     <p class="stage-lede">The last checkpoint before conduct. <em>Finalize every document</em>, confirm logistics, and verify the rehearsal is done. Nothing should still be in draft after this meeting.<br><span class="lede-zh">演習執行前的最後查核點。<em>完成所有文件定稿</em>、確認後勤，並查核預演已完成；本次會議後不應再有任何草稿。</span></p>
 
@@ -5477,7 +5479,10 @@ function renderConduct() {
 
   const progress = injects.length ? `
     <div class="conduct-progress">
-      <div style="font-weight:600; font-size:13px;">Inject delivery · 即時狀況投放進度</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <div style="font-weight:600; font-size:13px;">Inject delivery · 即時狀況投放進度</div>
+        <button type="button" class="ghost-btn" data-open-conductor style="font-size:12px; padding:6px 12px; white-space:nowrap;">▶ Conductor Mode · 執行模式</button>
+      </div>
       <div class="cp-bar-track"><div class="cp-bar-fill" style="width:${pct}%;"></div></div>
       <div class="cp-label"><span>${delivered} of ${injects.length} delivered · 已執行</span><span>${pct}%</span></div>
     </div>
@@ -5501,7 +5506,7 @@ function renderConduct() {
 
   return `
     <div class="stage-eyebrow">Stage 07 · 階段七</div>
-    <h1 class="stage-title">Conduct</h1>
+    <h1 class="stage-title"><span class="stage-title-en">Conduct</span></h1>
     <div class="stage-title-zh">演習執行（Conduct）</div>
     <p class="stage-lede">Run the exercise. Deliver each inject from the MSEL, <em>log what actually happened</em>, then capture the hotwash and controller / evaluator debrief.<br><span class="lede-zh">執行演習：依主要境況清單投放每則即時狀況，<em>記錄實際發生情形</em>，再蒐集事件後即時回饋（hotwash）與控制官／評核官回報。</span></p>
 
@@ -5546,7 +5551,7 @@ function renderEvaluation() {
   if (!lockedObjs.length) {
     return `
       <div class="stage-eyebrow">Stage 08 · 階段八</div>
-      <h1 class="stage-title">Evaluation</h1>
+      <h1 class="stage-title"><span class="stage-title-en">Evaluation</span></h1>
       <div class="stage-title-zh">演習評核（Evaluation）</div>
       <p class="stage-lede">Evaluation cards are <em>auto-generated</em> from the objectives locked at IPM.<br><span class="lede-zh">評核卡將依 IPM 已鎖定的目標<em>自動產生</em>。</span></p>
       <div class="gate-banner">
@@ -5608,7 +5613,7 @@ function renderEvaluation() {
 
   return `
     <div class="stage-eyebrow">Stage 08 · 階段八</div>
-    <h1 class="stage-title">Evaluation</h1>
+    <h1 class="stage-title"><span class="stage-title-en">Evaluation</span></h1>
     <div class="stage-title-zh">演習評核（Evaluation）</div>
     <p class="stage-lede">One EEG card per locked objective, <em>auto-generated</em> from IPM. Rate each capability, record observations, and note areas for improvement — those flow into the AAR/IP.<br><span class="lede-zh">每項已鎖定目標對應一張演習評核指引（EEG）卡，由 IPM <em>自動產生</em>。請為各核心能力評等、記錄觀察並標註待精進領域，這些內容將流入事件後報告／精進計畫（AAR/IP）。</span></p>
 
@@ -5678,7 +5683,7 @@ function renderAAR() {
 
   return `
     <div class="stage-eyebrow">Stage 09 · 階段九</div>
-    <h1 class="stage-title">After-Action Review &amp; Improvement Plan</h1>
+    <h1 class="stage-title"><span class="stage-title-en">After-Action Review &amp; Improvement Plan</span></h1>
     <div class="stage-title-zh">事件後報告／精進計畫（AAR / IP）</div>
     <p class="stage-lede">Synthesize the evaluation into validated findings and a <em>SMART improvement plan</em>. Each item traces back to the objective and capability it came from.<br><span class="lede-zh">將評核結果彙整為已驗證的發現，並形成一份 <em>SMART 精進計畫</em>；每個項目皆可回溯至其來源目標與核心能力。</span></p>
 
@@ -6279,6 +6284,10 @@ function attachStageHandlers(stage) {
         saveState(); render();
       }
     });
+  });
+  // Global: open Conductor Mode
+  document.querySelectorAll('[data-open-conductor]').forEach(el => {
+    el.addEventListener('click', () => { openConductorMode(); });
   });
 }
 
@@ -7401,7 +7410,7 @@ try { document.documentElement.setAttribute('data-lang', LANG); } catch (e) {}
 function tr(en, zh) { return LANG === 'zh' ? zh : en; }
 (function () { try { var st = document.createElement('style'); st.id = 'print-css'; st.textContent = '@page{margin:14mm} @media print{.topstrip,.app-footer,.modal-overlay,#appLauncher,#cmdPalette,#scenLab,#journeyOverlay,.help-btn,.rail,.stage-rail,aside,nav,button{display:none !important}body{background:#fff !important;color:#111 !important}.chk-card{border-color:#999 !important;background:#fff !important}a{color:#111;text-decoration:none}}'; document.head.appendChild(st); } catch (e) {} })();
 function biLbl(t) { var p = String(t).split(' \u00b7 '); if (p.length === 2 && /[\u4e00-\u9fff]/.test(p[1]) && !/[\u4e00-\u9fff]/.test(p[0])) return tr(p[0], p[1]); return t; }
-(function () { try { var st = document.createElement('style'); st.id = 'lang-css'; st.textContent = 'html[data-lang="en"] .stage-zh,html[data-lang="en"] .gate-zh,html[data-lang="en"] .gs-zh{display:none}html[data-lang="zh"] .stage-en,html[data-lang="zh"] .gate-en,html[data-lang="zh"] .gs-en{display:none} @media (max-width:760px){input,select,textarea{font-size:16px !important}}'; document.head.appendChild(st); } catch (e) {} })();
+(function () { try { var st = document.createElement('style'); st.id = 'lang-css'; st.textContent = 'html[data-lang="en"] .stage-zh,html[data-lang="en"] .gate-zh,html[data-lang="en"] .gs-zh,html[data-lang="en"] .field-label-zh,html[data-lang="en"] .stage-title-zh,html[data-lang="en"] .home2-create-text-zh,html[data-lang="en"] .ex2-next-zh{display:none}html[data-lang="zh"] .stage-en,html[data-lang="zh"] .gate-en,html[data-lang="zh"] .gs-en,html[data-lang="zh"] .field-label-text,html[data-lang="zh"] .stage-title-en,html[data-lang="zh"] .home2-create-text-en,html[data-lang="zh"] .ex2-next-en{display:none} @media (max-width:760px){input,select,textarea{font-size:16px !important}}'; document.head.appendChild(st); } catch (e) {} })();
 
 // ---- Command palette (Ctrl/Cmd+K quick jump) --------------------------------
 function ensureCmdkCss() {
@@ -7449,6 +7458,8 @@ function buildCmdkItems() {
     run: function () { openScenarioLab(); } });
   if (hasEx) items.push({ num: '\ud83d\udcf1', label: 'Briefing mode \u00b7 \u7c21\u5831\u6a21\u5f0f', dot: '', q: 'briefing brief print \u7c21\u5831 \u6a21\u5f0f \u5217\u5370',
     run: function () { openBriefing(); } });
+  if (hasEx && (state.mselMtg.injects || []).length) items.push({ num: '\u25b6\ufe0f', label: 'Conductor Mode \u00b7 \u57f7\u884c\u6a21\u5f0f', dot: '', q: 'conductor live conduct run exercise dispatch \u57f7\u884c \u6a21\u5f0f \u76f4\u64ad \u767c\u9001',
+    run: function () { openConductorMode(); } });
   items.push({ num: '\ud83d\udcbe', label: 'Save now \u00b7 \u7acb\u5373\u5132\u5b58', dot: '', q: 'save \u5132\u5b58',
     run: function () { saveState(); } });
   items.push({ num: '\ud83c\udfa8', label: 'Switch theme \u00b7 \u5207\u63db\u4e3b\u984c', dot: '', q: 'theme \u4e3b\u984c\u4f88\u5f69',
@@ -7817,6 +7828,192 @@ function openBriefing() {
   ov.addEventListener('click', function (e) { if (e && e.target === ov) closeBriefing(); });
   ov.appendChild(p); document.body.appendChild(ov);
   try { document.body.classList.add('briefing-open'); } catch (e) {}
+}
+
+// ---- Conductor Mode: live inject running-order + prepare-dispatch ----------
+function timeToMin(t) { var p = String(t || '').split(':'); var h = parseInt(p[0], 10), m = parseInt(p[1], 10); return (isFinite(h) ? h : 0) * 60 + (isFinite(m) ? m : 0); }
+function nowMin() { var d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+function nowClock() { var d = new Date(); function p2(n) { return String(n).padStart(2, '0'); } return p2(d.getHours()) + ':' + p2(d.getMinutes()) + ':' + p2(d.getSeconds()); }
+function conductorStatus(inj, log) {
+  var e = log[inj.id];
+  if (e && e.delivered) return 'delivered';
+  return nowMin() >= timeToMin(inj.time) ? 'due' : 'upcoming';
+}
+function copyText(t) {
+  try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t); return true; } } catch (e) {}
+  try {
+    var ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); return true;
+  } catch (e) { return false; }
+}
+function dispatchText(inj) {
+  return 'From/寄件: ' + (inj.fromActor || '') + '\nTo/收件: ' + (inj.toActor || '') + '\nScheduled/排定時間: ' + (inj.time || '') +
+    (inj.assignedTo ? ('\nAssigned/負責: ' + inj.assignedTo) : '') + '\n\n' + (inj.message || '') +
+    (inj.expectedAction ? ('\n\nExpected action/預期行動: ' + inj.expectedAction) : '');
+}
+function prepareDispatch(inj) {
+  var body = dispatchText(inj);
+  copyText(body);
+  try { window.location.href = 'mailto:?subject=' + encodeURIComponent('[Inject] ' + (inj.time || '') + ' ' + (inj.fromActor || '')) + '&body=' + encodeURIComponent(body); } catch (e) {}
+}
+function conductorBeep() {
+  try {
+    var Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx) return;
+    if (!conductorBeep._ctx) conductorBeep._ctx = new Ctx();
+    var ctx = conductorBeep._ctx, o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.value = 880; o.type = 'sine'; g.gain.value = 0.0001;
+    o.connect(g); g.connect(ctx.destination);
+    var t = ctx.currentTime;
+    g.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+    o.start(t); o.stop(t + 0.32);
+  } catch (e) {}
+}
+function ensureConductorCss() {
+  if (document.getElementById('cnd-css')) return;
+  var st = document.createElement('style'); st.id = 'cnd-css';
+  st.textContent = [
+    '.cnd-ov{position:fixed;inset:0;background:rgba(6,10,16,.72);z-index:99975;display:flex;justify-content:center;align-items:flex-start;padding:3vh 10px;overflow-y:auto}',
+    '.cnd-panel{width:min(720px,96vw);background:#1d2531;border:1px solid rgba(255,255,255,.14);border-radius:14px;box-shadow:0 18px 48px rgba(0,0,0,.5);color:#dbe5ee;font-family:inherit;margin-bottom:4vh}',
+    '.cnd-head{display:flex;align-items:center;gap:10px;padding:16px 18px 10px;border-bottom:1px solid rgba(255,255,255,.1)}',
+    '.cnd-title{font-size:15px;font-weight:800;color:#fff}',
+    '.cnd-sub{font-size:11.5px;color:#8fa6b8;margin-top:1px}',
+    '.cnd-clock{font-variant-numeric:tabular-nums;font-size:20px;font-weight:700;color:#ffd36b;margin-left:auto}',
+    '.cnd-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#dbe5ee;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:14px}',
+    '.cnd-progress-row{display:flex;align-items:center;gap:10px;padding:12px 18px}',
+    '.cnd-bar{flex:1;height:8px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden}',
+    '.cnd-bar i{display:block;height:100%;background:#67c97a}',
+    '.cnd-count{font-size:12px;color:#9db2c4;white-space:nowrap}',
+    '.cnd-mute{background:none;border:none;color:#9db2c4;font-size:16px;cursor:pointer;padding:2px 4px}',
+    '.cnd-now{margin:0 18px 14px;border-radius:10px;padding:14px 16px;background:rgba(255,211,107,.08);border:1px solid rgba(255,211,107,.35)}',
+    '.cnd-now.due{background:rgba(240,178,74,.14);border-color:rgba(240,178,74,.55)}',
+    '.cnd-now.done{background:rgba(103,201,122,.1);border-color:rgba(103,201,122,.4)}',
+    '.cnd-hero-label{font-size:11px;font-weight:800;letter-spacing:.6px;color:#ffd36b;margin-bottom:4px}',
+    '.cnd-now.due .cnd-hero-label{color:#f0b24a}',
+    '.cnd-now.done .cnd-hero-label{color:#67c97a}',
+    '.cnd-hero-time{font-size:22px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}',
+    '.cnd-hero-msg{font-size:13.5px;color:#eef3f8;margin-top:6px;line-height:1.45}',
+    '.cnd-hero-exp{font-size:12px;color:#9db2c4;margin-top:6px;line-height:1.4}',
+    '.cnd-hero-actions{display:flex;gap:8px;margin-top:12px}',
+    '.cnd-hero-actions button{font-family:inherit;font-size:12.5px;font-weight:700;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid rgba(255,255,255,.2)}',
+    '.cnd-deliver-btn{background:#67c97a;border-color:#67c97a !important;color:#0d2013}',
+    '.cnd-prep-btn{background:rgba(255,255,255,.08);color:#eef3f8}',
+    '.cnd-list{max-height:42vh;overflow-y:auto;padding:0 10px 14px}',
+    '.cnd-row{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:8px;font-size:12.5px}',
+    '.cnd-row:hover{background:rgba(255,255,255,.04)}',
+    '.cnd-time{width:44px;flex:none;color:#9db2c4;font-variant-numeric:tabular-nums}',
+    '.cnd-dot{width:8px;height:8px;border-radius:50%;flex:none;background:#5b6b7c}',
+    '.cnd-row.due .cnd-dot{background:#f0b24a}',
+    '.cnd-row.delivered .cnd-dot{background:#67c97a}',
+    '.cnd-msg{flex:1;color:#dbe5ee;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.cnd-row.delivered .cnd-msg{color:#7c8a97;text-decoration:line-through}',
+    '.cnd-prep{background:none;border:1px solid rgba(255,255,255,.18);color:#9db2c4;border-radius:6px;width:26px;height:26px;cursor:pointer;flex:none;font-size:12px}',
+    '.cnd-check{flex:none}',
+    '.cnd-foot{padding:8px 18px 14px;font-size:10.5px;color:#7c8a97}'
+  ].join('\n');
+  document.head.appendChild(st);
+}
+var _cndTimer = null, _cndMuted = false, _cndSeenDue = {};
+function closeConductorMode() {
+  if (_cndTimer) { clearInterval(_cndTimer); _cndTimer = null; }
+  _cndSeenDue = {};
+  var el = document.getElementById('conductorOv'); if (el) el.remove();
+  render();
+}
+function conductorTick() {
+  var ov = document.getElementById('conductorOv'); if (!ov) return;
+  var injects = (state.mselMtg.injects || []).slice().sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+  var log = state.conduct.injectLog || {};
+  var clockEl = document.getElementById('cndClock'); if (clockEl) clockEl.textContent = nowClock();
+
+  var delivered = injects.filter(function (i) { return log[i.id] && log[i.id].delivered; }).length;
+  var pct = injects.length ? Math.round(delivered / injects.length * 100) : 0;
+  var barI = ov.querySelector('.cnd-bar i'); if (barI) barI.style.width = pct + '%';
+  var countEl = document.getElementById('cndCount'); if (countEl) countEl.textContent = delivered + ' of ' + injects.length + ' delivered · 已投放';
+
+  var due = injects.filter(function (i) { return conductorStatus(i, log) === 'due'; }).sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+  var upcoming = injects.filter(function (i) { return conductorStatus(i, log) === 'upcoming'; }).sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+
+  if (!_cndMuted) {
+    due.forEach(function (i) { if (!_cndSeenDue[i.id]) { conductorBeep(); } });
+  }
+  due.forEach(function (i) { _cndSeenDue[i.id] = true; });
+
+  var heroEl = document.getElementById('cndNow');
+  if (heroEl) {
+    var hero = due[0] || upcoming[0];
+    if (!hero) {
+      heroEl.className = 'cnd-now done';
+      heroEl.innerHTML = '<div class="cnd-hero-label">ALL DELIVERED \u00b7 \u5168\u90e8\u6295\u653e\u5b8c\u6210</div><div class="cnd-hero-msg">Every inject on the MSEL has been marked delivered. \u00b7 \u6240\u6709\u5373\u6642\u72c0\u6cc1\u5747\u5df2\u6a19\u8a18\u6295\u653e\u3002</div>';
+    } else {
+      var isDue = due[0] === hero;
+      heroEl.className = 'cnd-now' + (isDue ? ' due' : '');
+      heroEl.innerHTML =
+        '<div class="cnd-hero-label">' + (isDue ? 'NOW \u00b7 \u73fe\u5728' : 'NEXT UP \u00b7 \u4e0b\u4e00\u5247') + '</div>' +
+        '<div class="cnd-hero-time">' + escapeHtml(hero.time || '\u2014') + '</div>' +
+        '<div class="cnd-hero-msg">' + escapeHtml(hero.fromActor || '?') + ' \u2192 ' + escapeHtml(hero.toActor || '?') + ': ' + escapeHtml(hero.message || '') + '</div>' +
+        (hero.expectedAction ? '<div class="cnd-hero-exp">Expected \u00b7 \u9810\u671f\u884c\u52d5\uff1a' + escapeHtml(hero.expectedAction) + '</div>' : '') +
+        '<div class="cnd-hero-actions"><button class="cnd-deliver-btn" data-cnd-deliver-hero="' + hero.id + '">\u2713 Mark Delivered \u00b7 \u6a19\u8a18\u5df2\u6295\u653e</button><button class="cnd-prep-btn" data-cnd-prepare="' + hero.id + '">\u2709 Prepare \u00b7 \u6e96\u5099\u767c\u9001</button></div>';
+    }
+  }
+
+  var listEl = document.getElementById('cndList');
+  if (listEl) {
+    listEl.innerHTML = injects.map(function (inj) {
+      var st = conductorStatus(inj, log), delv = st === 'delivered';
+      return '<div class="cnd-row ' + st + '" data-cnd-id="' + inj.id + '">' +
+        '<span class="cnd-time">' + escapeHtml(inj.time || '\u2014') + '</span>' +
+        '<span class="cnd-dot"></span>' +
+        '<span class="cnd-msg" title="' + escapeHtml(inj.message || '') + '">' + escapeHtml(inj.message || 'No message') + '</span>' +
+        '<button class="cnd-prep" data-cnd-prepare="' + inj.id + '" title="Prepare dispatch">\u2709</button>' +
+        '<label class="cnd-check"><input type="checkbox" data-cnd-deliver="' + inj.id + '" ' + (delv ? 'checked' : '') + '></label>' +
+        '</div>';
+    }).join('');
+  }
+}
+function conductorMarkDelivered(id) {
+  state.conduct.injectLog[id] = state.conduct.injectLog[id] || {};
+  state.conduct.injectLog[id].delivered = true;
+  state.conduct.injectLog[id].actualTime = nowClock().slice(0, 5);
+  saveState();
+}
+function openConductorMode() {
+  if (!currentExercise()) return;
+  if (document.getElementById('conductorOv')) return;
+  ensureConductorCss();
+  var ov = document.createElement('div'); ov.id = 'conductorOv'; ov.className = 'cnd-ov';
+  var ex = currentExercise();
+  ov.innerHTML =
+    '<div class="cnd-panel" role="dialog" aria-modal="true" aria-label="Conductor Mode">' +
+    '<div class="cnd-head"><div><div class="cnd-title">\u25b6 Conductor Mode \u00b7 \u57f7\u884c\u6a21\u5f0f</div><div class="cnd-sub">' + escapeHtml((ex.meta && ex.meta.name) || '') + '</div></div>' +
+    '<div class="cnd-clock" id="cndClock">--:--:--</div><button class="cnd-close" id="cndCloseBtn" aria-label="Close">\u2715</button></div>' +
+    '<div class="cnd-progress-row"><div class="cnd-bar"><i style="width:0%"></i></div><div class="cnd-count" id="cndCount"></div><button class="cnd-mute" id="cndMuteBtn" title="Mute chime">\ud83d\udd0a</button></div>' +
+    '<div class="cnd-now" id="cndNow"></div>' +
+    '<div class="cnd-list" id="cndList"></div>' +
+    '<div class="cnd-foot">Times are read against your device clock. \u00b7 \u6642\u9593\u5c0d\u61c9\u672c\u6a5f\u6642\u9418\u3002 Prepare copies the message and opens your mail app \u2014 sending is always up to you. \u00b7 準備僅複製訊息並開啟郵件，發送與否由您決定。</div>' +
+    '</div>';
+  ov.addEventListener('click', function (e) {
+    if (e.target === ov) { closeConductorMode(); return; }
+    var t = e.target.closest('[data-cnd-prepare]');
+    if (t) { var inj = (state.mselMtg.injects || []).find(function (i) { return i.id === t.dataset.cndPrepare; }); if (inj) { prepareDispatch(inj); t.textContent = '\u2713'; } return; }
+    if (e.target.closest('#cndCloseBtn')) { closeConductorMode(); return; }
+    if (e.target.closest('#cndMuteBtn')) { _cndMuted = !_cndMuted; e.target.closest('#cndMuteBtn').textContent = _cndMuted ? '\ud83d\udd07' : '\ud83d\udd0a'; return; }
+    var dh = e.target.closest('[data-cnd-deliver-hero]');
+    if (dh) { conductorMarkDelivered(dh.dataset.cndDeliverHero); conductorTick(); return; }
+  });
+  ov.addEventListener('change', function (e) {
+    var cb = e.target.closest('[data-cnd-deliver]');
+    if (cb) {
+      var id = cb.dataset.cndDeliver;
+      state.conduct.injectLog[id] = state.conduct.injectLog[id] || {};
+      state.conduct.injectLog[id].delivered = cb.checked;
+      if (cb.checked) state.conduct.injectLog[id].actualTime = nowClock().slice(0, 5);
+      saveState(); conductorTick();
+    }
+  });
+  document.body.appendChild(ov);
+  conductorTick();
+  _cndTimer = setInterval(conductorTick, 1000);
 }
 
 var Journey = (function () {
@@ -10487,6 +10684,8 @@ try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch
       if (_sl) { _sl.remove(); return; }
       var _bf = document.getElementById('briefOverlay');
       if (_bf) { closeBriefing(); return; }
+      var _cn = document.getElementById('conductorOv');
+      if (_cn) { closeConductorMode(); return; }
       var modal = document.getElementById('exportModal');
       if (modal && modal.style.display !== 'none' && modal.innerHTML !== '') {
         modal.style.display = 'none';
@@ -10499,6 +10698,909 @@ try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch
       if (guide) guide.remove();
     }
   });
+})();
+
+
+// =====================================================================
+// v0.5 — PLANNING WORKFLOW & HISTORY EXTENSIONS
+// Additive patch layer in the same style as v0.4. Nothing here changes
+// existing behaviour; it layers new tools on top:
+//   1. Undo / Redo for the open exercise (Ctrl/Cmd+Z · Ctrl/Cmd+Shift+Z
+//      or Ctrl+Y) with a per-exercise snapshot history
+//   2. Multi-tab guard — detects when another tab saved this library and
+//      offers to load those changes instead of silently overwriting them
+//   3. Shift all MSEL inject times by ±N minutes (for start-time slips)
+//   4. Back-plan meeting dates from the exercise target date
+//   5. Per-exercise JSON share (⬇ on each library card; re-import with
+//      the existing ⬆ JSON restore button)
+//   6. Keyboard stage navigation: Alt+↑/↓ steps stages, Alt+1–9 jumps
+// =====================================================================
+(function workflowAndHistory() {
+  'use strict';
+
+  // ---- 0. Toast (reuse v0.4's; minimal fallback if it's absent) ---------
+  var toast5 = (typeof window !== 'undefined' && window.hseepToast) ? window.hseepToast
+    : function (msg) {
+        var b = document.getElementById('hseepToast5b');
+        if (b) b.remove();
+        b = document.createElement('div');
+        b.id = 'hseepToast5b';
+        b.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:9999;max-width:80vw;';
+        b.textContent = msg;
+        document.body.appendChild(b);
+        setTimeout(function () { b.remove(); }, 4000);
+      };
+
+  // Shared guard: don't run global shortcuts while typing or while a
+  // full-screen tool (palette, lab, briefing, conductor…) is open.
+  function isTyping(t) {
+    if (!t) return false;
+    var tag = t.tagName;
+    return !!(t.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT');
+  }
+  function overlayOpen() {
+    if (document.getElementById('cmdPalette') || document.getElementById('scenLab') ||
+        document.getElementById('briefOverlay') || document.getElementById('conductorOv') ||
+        document.getElementById('journeyOverlay') || document.getElementById('guideOverlay') ||
+        document.getElementById('aiReviewOverlay') || document.getElementById('appLauncher')) return true;
+    var m = document.getElementById('exportModal');
+    return !!(m && m.style.display !== 'none' && m.innerHTML !== '');
+  }
+
+  // ---- 1. Undo / Redo history --------------------------------------------
+  // A debounced ring of JSON snapshots of the *open* exercise. Typing
+  // coalesces into one snapshot per pause; structural actions (add/delete
+  // inject, lock objective…) each land as their own step. Restoring a
+  // snapshot re-renders and persists through the hardened save path.
+  var hist = { exId: null, snaps: [], ptr: -1, timer: null, restoring: false };
+
+  function snapNow() {
+    if (view !== 'exercise') return;
+    var ex = currentExercise();
+    if (!ex) return;
+    var s;
+    try { s = JSON.stringify(state); } catch (e) { return; }
+    if (hist.exId !== ex.meta.id) {           // switched exercise → new history
+      hist.exId = ex.meta.id;
+      hist.snaps = [s];
+      hist.ptr = 0;
+      return;
+    }
+    if (hist.snaps[hist.ptr] === s) return;   // nothing actually changed
+    hist.snaps = hist.snaps.slice(0, hist.ptr + 1);  // drop any redo branch
+    hist.snaps.push(s);
+    // Exercises with a large scenario map make snapshots heavy — keep the
+    // ring shallower for them so memory stays reasonable.
+    var cap = s.length > 250000 ? 10 : 30;
+    while (hist.snaps.length > cap) hist.snaps.shift();
+    hist.ptr = hist.snaps.length - 1;
+  }
+
+  function restoreTo(i) {
+    var ex = currentExercise();
+    if (!ex || i < 0 || i >= hist.snaps.length) return false;
+    var parsed;
+    try { parsed = JSON.parse(hist.snaps[i]); } catch (e) { return false; }
+    hist.ptr = i;
+    hist.restoring = true;
+    state = parsed;
+    ex.data = state;
+    try { baseSaveState5(); } finally { hist.restoring = false; }
+    render();
+    return true;
+  }
+
+  function undoChange() {
+    if (hist.ptr > 0 && restoreTo(hist.ptr - 1)) toast5('Undo · 已復原上一步');
+    else toast5('Nothing to undo · 沒有可復原的變更', { warn: true });
+  }
+  function redoChange() {
+    if (hist.ptr < hist.snaps.length - 1 && restoreTo(hist.ptr + 1)) toast5('Redo · 已重做');
+    else toast5('Nothing to redo · 沒有可重做的變更', { warn: true });
+  }
+
+  // ---- 2. Multi-tab guard --------------------------------------------------
+  // localStorage 'storage' events only fire in *other* tabs, so any event on
+  // our key means a second tab wrote the library. Last-writer-wins is the
+  // status quo; this makes it visible and offers a safe one-click adopt.
+  var lastExtWarn = 0;
+  function adoptExternal() {
+    var curId = library.currentId;
+    loadState();                              // re-read + normalise from storage
+    if (view === 'exercise') {
+      var ex = library.exercises.find(function (x) { return x.meta.id === curId; });
+      if (ex) { library.currentId = curId; state = ex.data; }
+      else { view = 'home'; library.currentId = null; }
+    }
+    hist.exId = null;                          // history restarts from adopted data
+    render();
+    toast5('Loaded the latest data from the other tab. · 已載入另一分頁的最新資料。');
+  }
+  window.addEventListener('storage', function (e) {
+    if (!e || e.key !== STORAGE_KEY || e.newValue == null) return;
+    var now = Date.now();
+    if (now - lastExtWarn < 8000) return;      // don't spam while they autosave
+    lastExtWarn = now;
+    toast5('This library was just saved in another tab — edits here may overwrite it. · 另一個分頁剛儲存了資料，此處的編輯可能會覆蓋它。', {
+      warn: true,
+      duration: 12000,
+      action: { label: 'Load changes · 載入變更', fn: adoptExternal }
+    });
+  });
+
+  // ---- 3. Shift MSEL times ---------------------------------------------------
+  function minToTime(m) {
+    m = ((m % 1440) + 1440) % 1440;            // wrap within the 24h clock
+    var h = Math.floor(m / 60), mm = m % 60;
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(h) + ':' + p(mm);
+  }
+  function shiftMselTimes() {
+    var inj = (state.mselMtg && state.mselMtg.injects) || [];
+    var valid = inj.filter(function (i) { return /^\d{1,2}:\d{2}$/.test(String(i.time || '').trim()); });
+    if (!valid.length) {
+      toast5('No timed injects to shift. · 沒有可平移時間的即時狀況。', { warn: true });
+      return;
+    }
+    var raw = prompt('Shift all ' + valid.length + ' inject times by how many minutes? (e.g. 15 or -30) · 全部 ' + valid.length + ' 筆即時狀況時間要平移幾分鐘？（例：15 或 -30）', '15');
+    if (raw === null) return;
+    var d = parseInt(raw, 10);
+    if (!isFinite(d) || !d) {
+      toast5('Enter a non-zero number of minutes. · 請輸入非零的分鐘數。', { warn: true });
+      return;
+    }
+    valid.forEach(function (i) { i.time = minToTime(timeToMin(i.time) + d); });
+    saveState();
+    render();
+    toast5('Shifted ' + valid.length + ' inject times by ' + (d > 0 ? '+' : '') + d + ' min. · 已平移 ' + valid.length + ' 筆時間 ' + (d > 0 ? '+' : '') + d + ' 分鐘。');
+  }
+
+  // ---- 4. Back-plan meeting dates ---------------------------------------------
+  // Typical HSEEP planning cadence, counted back from the exercise day.
+  // Only *empty* date fields are filled; anything already set is kept.
+  var PLAN_OFFSETS = [
+    ['co',      'date', -70, 'C&O'],
+    ['ipm',     'date', -56, 'IPM'],
+    ['mpm',     'date', -42, 'MPM'],
+    ['mselMtg', 'date', -28, 'MSEL'],
+    ['fpm',     'date', -14, 'FPM']
+  ];
+  function isoAddDays(iso, d) {
+    var t = new Date(iso + 'T12:00:00');
+    if (isNaN(t)) return '';
+    t.setDate(t.getDate() + d);
+    return t.toISOString().slice(0, 10);
+  }
+  function backplanDates() {
+    var ex = currentExercise();
+    if (!ex) return;
+    var target = ex.meta.targetDate;
+    if (!target) {
+      var raw = prompt('Set the planned exercise day first (YYYY-MM-DD): · 請先輸入預定演習日（YYYY-MM-DD）：', '');
+      if (raw === null) return;
+      raw = String(raw).trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(raw) || isNaN(new Date(raw + 'T12:00:00'))) {
+        toast5('Use the format YYYY-MM-DD. · 日期格式須為 YYYY-MM-DD。', { warn: true });
+        return;
+      }
+      target = raw;
+      ex.meta.targetDate = target;
+    }
+    var filled = 0, kept = 0;
+    PLAN_OFFSETS.forEach(function (row) {
+      if (!state[row[0]]) return;
+      if (state[row[0]][row[1]]) { kept++; return; }
+      var d = isoAddDays(target, row[2]);
+      if (!d) return;
+      state[row[0]][row[1]] = d;
+      filled++;
+    });
+    if (state.conduct) {
+      if (state.conduct.actualDate) kept++;
+      else { state.conduct.actualDate = target; filled++; }
+    }
+    saveState();
+    render();
+    if (filled) {
+      toast5('Planned ' + filled + ' date' + (filled === 1 ? '' : 's') + ' back from ' + target + (kept ? ' (' + kept + ' kept). · 已依演習日回推排定 ' + filled + ' 個日期（保留既有 ' + kept + ' 筆）。' : '. · 已依演習日回推排定 ' + filled + ' 個日期。'), { duration: 7000 });
+    } else {
+      toast5('All meeting dates are already set — nothing changed. · 各會議日期均已填寫，未變更。');
+    }
+  }
+
+  // ---- 5. Per-exercise JSON share -----------------------------------------------
+  // Downloads {app, version, exercises:[ex]} — the exact shape the v0.4
+  // ⬆ JSON restore button already accepts, so one card travels cleanly
+  // between devices or colleagues.
+  function exportOneExercise(id) {
+    var ex = library.exercises.find(function (x) { return x.meta.id === id; });
+    if (!ex) return;
+    if (ex.meta.id === library.currentId) saveState();
+    var safe = String(ex.meta.name || 'exercise').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'exercise';
+    var payload = { app: 'hseep-planner', version: APP_VERSION, exported: new Date().toISOString(), exercises: [ex] };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'HSEEP_' + safe + '_' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch (e) {}
+    }, 1500);
+    toast5('Exercise JSON downloaded — import it anywhere with ⬆ JSON. · 已下載演習 JSON，可於任何裝置以 ⬆ JSON 匯入。', { duration: 6000 });
+  }
+  function decorateCards() {
+    document.querySelectorAll('.ex2-card .ex2-menu').forEach(function (menu) {
+      if (menu.querySelector('[data-exp1]')) return;
+      var dup = menu.querySelector('[data-dup]');
+      if (!dup) return;
+      var id = dup.getAttribute('data-dup');
+      var b = document.createElement('button');
+      b.className = 'ex2-icon-btn';
+      b.setAttribute('data-exp1', id);
+      b.title = 'Share this exercise as JSON · 匯出此演習 JSON';
+      b.textContent = '⬇';
+      menu.insertBefore(b, dup);
+      b.addEventListener('click', function (ev) { ev.stopPropagation(); exportOneExercise(id); });
+    });
+  }
+
+  // ---- 6. Keyboard: undo/redo + stage navigation ---------------------------------
+  function activeStageNums() {
+    return STAGES.filter(function (s) { return s.active; }).map(function (s) { return s.n; });
+  }
+  function gotoStage(n) {
+    var st = STAGES.find(function (s) { return s.n === n; });
+    if (!st || !st.active) return;
+    state.currentStage = n;
+    saveState();
+    render();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (isTyping(e.target) || overlayOpen()) return;
+    var inEx = view === 'exercise' && !!currentExercise();
+    // Undo / Redo
+    if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+      var k = (e.key || '').toLowerCase();
+      if (k === 'z') { e.preventDefault(); if (inEx) (e.shiftKey ? redoChange : undoChange)(); return; }
+      if (k === 'y' && !e.shiftKey) { e.preventDefault(); if (inEx) redoChange(); return; }
+    }
+    if (!inEx) return;
+    // Stage navigation (Alt+↑/↓ steps, Alt+1–9 jumps; e.code so macOS
+    // Option-composed characters don't get in the way)
+    if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        var nums = activeStageNums();
+        var i = nums.indexOf(state.currentStage);
+        i = i === -1 ? 0 : Math.min(nums.length - 1, Math.max(0, i + (e.key === 'ArrowDown' ? 1 : -1)));
+        gotoStage(nums[i]);
+        return;
+      }
+      var mDigit = /^Digit([1-9])$/.exec(e.code || '');
+      if (mDigit) { e.preventDefault(); gotoStage(parseInt(mDigit[1], 10)); }
+    }
+  });
+
+  // ---- Command palette entries ------------------------------------------------
+  var _items5 = buildCmdkItems;
+  buildCmdkItems = function v05CmdkItems() {
+    var items = _items5();
+    if (currentExercise()) {
+      items.push({ num: '\u21b6', label: 'Undo last change · 復原上一步', dot: '',
+        q: 'undo revert back history 復原 上一步 ctrl z',
+        run: undoChange });
+      items.push({ num: '\u21b7', label: 'Redo · 重做', dot: '',
+        q: 'redo forward history 重做 ctrl y',
+        run: redoChange });
+      items.push({ num: '\ud83d\uddd3', label: 'Back-plan meeting dates · 依演習日回推排程', dot: '',
+        q: 'plan schedule meeting dates backplan target 排程 會議 日期 回推 演習日',
+        run: backplanDates });
+      if (typeof exerciseFamily === 'function' && exerciseFamily() !== 'discussion' &&
+          state.mselMtg && (state.mselMtg.injects || []).length) {
+        items.push({ num: '\u23f1', label: 'Shift MSEL times ±N min · 平移 MSEL 時間', dot: '',
+          q: 'shift msel inject time minutes delay slip 平移 時間 延後 提前',
+          run: shiftMselTimes });
+      }
+    }
+    return items;
+  };
+
+  // ---- Hook save + render ---------------------------------------------------------
+  var baseSaveState5 = saveState;              // v0.4's hardened save
+  saveState = function historySaveState() {
+    baseSaveState5.apply(this, arguments);
+    if (!hist.restoring) {
+      clearTimeout(hist.timer);
+      hist.timer = setTimeout(snapNow, 500);   // coalesce keystrokes into one step
+    }
+  };
+
+  var _render5 = render;
+  render = function v05Render() {
+    _render5();
+    if (view === 'home' || !currentExercise()) {
+      decorateCards();
+    } else {
+      var ex = currentExercise();
+      if (ex && hist.exId !== ex.meta.id) snapNow();   // seed the baseline snapshot
+    }
+  };
+})();
+
+
+// =====================================================================
+// v0.6 — SCHEDULE VISIBILITY & FINDABILITY EXTENSIONS
+// Additive patch layer in the same style as v0.4/v0.5. Adds:
+//   1. Export the planning schedule as an .ics calendar file (meetings
+//      set at each stage + the exercise day) — pairs with the v0.5
+//      back-planner: plan the dates, then put them in everyone's calendar
+//   2. Relative date chips under every meeting-date field ("in 12 d",
+//      "3 d overdue", "today") that update live as the date changes
+//   3. Deep content search in the ⌘K palette — type any word from an
+//      inject, objective, module, question, document, or finding to jump
+//      to its stage and flash the matching card
+//   4. Duplicate-inject button (⧉) on each MSEL inject card
+// =====================================================================
+(function scheduleAndFindability() {
+  'use strict';
+
+  var toast6 = (typeof window !== 'undefined' && window.hseepToast) ? window.hseepToast
+    : function (msg) { try { console.log(msg); } catch (e) {} };
+  function bi(t) { return (typeof biLbl === 'function') ? biLbl(t) : t; }
+
+  function ensureV06Css() {
+    if (document.getElementById('v06-css')) return;
+    var st = document.createElement('style');
+    st.id = 'v06-css';
+    st.textContent = [
+      '.v06-datechip{display:inline-block;margin-top:5px;font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;border:1px solid rgba(127,127,127,.3);opacity:.72;font-variant-numeric:tabular-nums}',
+      '.v06-datechip.today{color:#2e9e57;border-color:rgba(46,158,87,.5);background:rgba(46,158,87,.10);opacity:1}',
+      '.v06-datechip.late{color:#c2452d;border-color:rgba(194,69,45,.5);background:rgba(194,69,45,.08);opacity:1}',
+      '.v06-dup-inj{border:none;background:transparent;cursor:pointer;font-size:14px;line-height:1;padding:2px 6px;opacity:.55}',
+      '.v06-dup-inj:hover{opacity:1}',
+      '@keyframes v06pulse{0%{box-shadow:0 0 0 0 rgba(240,160,20,.55)}100%{box-shadow:0 0 0 16px rgba(240,160,20,0)}}',
+      '.v06-reveal{animation:v06pulse 1.2s ease-out 2;border-radius:10px}'
+    ].join('\n');
+    document.head.appendChild(st);
+  }
+
+  // ---- 1. Calendar (.ics) export ------------------------------------------
+  // One VEVENT per meeting date that is actually set, plus the exercise day.
+  // UIDs are stable per exercise+meeting, so re-importing an updated file
+  // replaces the old events instead of duplicating them.
+  var ICS_MEETINGS = [
+    ['co',      'date', 'co',   'C&O Meeting \u00b7 \u69cb\u60f3\u8207\u76ee\u6a19\u6703\u8b70'],
+    ['ipm',     'date', 'ipm',  'IPM \u00b7 \u521d\u671f\u898f\u5283\u6703\u8b70'],
+    ['mpm',     'date', 'mpm',  'MPM \u00b7 \u671f\u4e2d\u898f\u5283\u6703\u8b70'],
+    ['mselMtg', 'date', 'msel', 'MSEL Meeting \u00b7 \u4e3b\u8981\u5883\u6cc1\u6e05\u55ae\u6703\u8b70'],
+    ['fpm',     'date', 'fpm',  'FPM \u00b7 \u6700\u7d42\u898f\u5283\u6703\u8b70']
+  ];
+  function icsEscape(s) {
+    return String(s || '')
+      .replace(/\\/g, '\\\\')
+      .replace(/;/g, '\\;')
+      .replace(/,/g, '\\,')
+      .replace(/\r?\n/g, '\\n');
+  }
+  // RFC 5545 folding: keep every physical line <= 74 UTF-8 octets, folding
+  // at character boundaries so multi-byte CJK never splits mid-sequence.
+  // Byte lengths are computed from code points (no TextEncoder dependency).
+  function utf8Len(cp) {
+    return cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+  }
+  function icsFold(line) {
+    var out = [], cur = '', curBytes = 0, first = true;
+    for (var i = 0; i < line.length;) {
+      var cp = line.codePointAt(i);
+      var ch = String.fromCodePoint(cp);
+      var b = utf8Len(cp);
+      var limit = first ? 74 : 73;            // continuation lines start with a space
+      if (curBytes + b > limit) {
+        out.push(cur);
+        cur = ch; curBytes = b; first = false;
+      } else {
+        cur += ch; curBytes += b;
+      }
+      i += ch.length;
+    }
+    if (cur) out.push(cur);
+    return out.map(function (l, idx) { return idx === 0 ? l : ' ' + l; }).join('\r\n');
+  }
+  function icsDate(iso) { return String(iso).replace(/-/g, ''); }
+  function icsNextDay(iso) {
+    var t = new Date(iso + 'T12:00:00');
+    t.setDate(t.getDate() + 1);
+    return t.toISOString().slice(0, 10);
+  }
+  function buildIcsEvents() {
+    var ex = currentExercise();
+    if (!ex) return [];
+    var evts = [];
+    ICS_MEETINGS.forEach(function (row) {
+      var iso = state[row[0]] && state[row[0]][row[1]];
+      if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) evts.push({ key: row[2], iso: iso, label: row[3] });
+    });
+    var exDay = ex.meta.targetDate || (state.conduct && state.conduct.actualDate) || '';
+    if (exDay && /^\d{4}-\d{2}-\d{2}$/.test(exDay)) {
+      evts.push({ key: 'exercise', iso: exDay, label: 'Exercise day \u00b7 \u6f14\u7fd2\u65e5' });
+    }
+    return evts;
+  }
+  function exportScheduleICS() {
+    var ex = currentExercise();
+    if (!ex) return;
+    var evts = buildIcsEvents();
+    if (!evts.length) {
+      toast6('No meeting dates are set yet — try \u201cBack-plan meeting dates\u201d first. \u00b7 \u5c1a\u672a\u8a2d\u5b9a\u4efb\u4f55\u6703\u8b70\u65e5\u671f\uff0c\u53ef\u5148\u4f7f\u7528\u300c\u4f9d\u6f14\u7fd2\u65e5\u56de\u63a8\u6392\u7a0b\u300d\u3002', { warn: true, duration: 7000 });
+      return;
+    }
+    var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//HSEEP Planner//EN', 'CALSCALE:GREGORIAN'];
+    evts.forEach(function (ev) {
+      lines.push('BEGIN:VEVENT');
+      lines.push('UID:' + ex.meta.id + '-' + ev.key + '@hseep-planner');
+      lines.push('DTSTAMP:' + stamp);
+      lines.push('DTSTART;VALUE=DATE:' + icsDate(ev.iso));
+      lines.push('DTEND;VALUE=DATE:' + icsDate(icsNextDay(ev.iso)));
+      lines.push(icsFold('SUMMARY:' + icsEscape(ev.label + ' \u2014 ' + (ex.meta.name || 'HSEEP exercise'))));
+      lines.push(icsFold('DESCRIPTION:' + icsEscape('Planned in HSEEP Planner \u00b7 \u7531 HSEEP Planner \u6392\u5b9a')));
+      lines.push('END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    var safe = String(ex.meta.name || 'exercise').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'exercise';
+    var blob = new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'HSEEP_' + safe + '_schedule.ics';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch (e) {}
+    }, 1500);
+    toast6('Calendar file downloaded (' + evts.length + ' event' + (evts.length === 1 ? '' : 's') + ') \u2014 import it into Outlook / Google Calendar. \u00b7 \u5df2\u4e0b\u8f09\u884c\u4e8b\u66c6\u6a94\uff08' + evts.length + ' \u7b46\uff09\uff0c\u53ef\u532f\u5165 Outlook / Google \u65e5\u66c6\u3002', { duration: 7000 });
+  }
+
+  // ---- 2. Relative date chips -----------------------------------------------
+  function daysFromToday(iso) {
+    var t = new Date(iso + 'T12:00:00');
+    if (isNaN(t)) return null;
+    var now = new Date();
+    now.setHours(12, 0, 0, 0);
+    return Math.round((t - now) / 86400000);
+  }
+  function chipTextFor(iso) {
+    var d = daysFromToday(iso);
+    if (d === null) return null;
+    if (d === 0) return { cls: 'today', txt: bi('today \u00b7 \u4eca\u5929') };
+    if (d > 0)  return { cls: '',      txt: bi('in ' + d + ' d \u00b7 ' + d + ' \u5929\u5f8c') };
+    return { cls: 'late', txt: bi((-d) + ' d ago \u00b7 ' + (-d) + ' \u5929\u524d') };
+  }
+  function refreshChip(input) {
+    var chip = input.parentNode && input.parentNode.querySelector('.v06-datechip[data-for="' + (input.dataset.field || '') + '"]');
+    var info = input.value ? chipTextFor(input.value) : null;
+    if (!info) { if (chip) chip.remove(); return; }
+    if (!chip) {
+      chip = document.createElement('span');
+      chip.className = 'v06-datechip';
+      chip.setAttribute('data-for', input.dataset.field || '');
+      input.insertAdjacentElement('afterend', chip);
+    }
+    chip.className = 'v06-datechip' + (info.cls ? ' ' + info.cls : '');
+    chip.textContent = info.txt;
+  }
+  function decorateDateChips() {
+    ensureV06Css();
+    document.querySelectorAll('#mainContent input[type="date"][data-field]').forEach(refreshChip);
+  }
+  ['change', 'input'].forEach(function (evName) {
+    document.addEventListener(evName, function (e) {
+      var t = e.target;
+      if (t && t.matches && t.matches('input[type="date"][data-field]')) refreshChip(t);
+    }, true);
+  });
+
+  // ---- 3. Deep content search in the palette -----------------------------------
+  function squish(s, n) {
+    var t = String(s || '').replace(/\s+/g, ' ').trim();
+    return t.length > n ? t.slice(0, n - 1) + '\u2026' : t;
+  }
+  function revealText(snippet) {
+    ensureV06Css();
+    var main = document.getElementById('mainContent');
+    if (!main || !snippet) return;
+    var needle = String(snippet).replace(/\s+/g, ' ').trim().slice(0, 24);
+    if (!needle) return;
+    var target = null;
+    var fields = main.querySelectorAll('input, textarea');
+    for (var i = 0; i < fields.length; i++) {
+      if (String(fields[i].value || '').indexOf(needle) !== -1) { target = fields[i]; break; }
+    }
+    if (!target) {
+      var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, null);
+      var node;
+      while ((node = walker.nextNode())) {
+        if (String(node.nodeValue || '').indexOf(needle) !== -1) { target = node.parentElement; break; }
+      }
+    }
+    if (!target) return;
+    var card = (target.closest && target.closest('.inject-card, .dq-card, .obj-card, .module-card, .doc-row, .ip-card, .field-group, li, tr')) || target;
+    if (card.scrollIntoView) { try { card.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { try { card.scrollIntoView(); } catch (e2) {} } }
+    card.classList.add('v06-reveal');
+    setTimeout(function () { try { card.classList.remove('v06-reveal'); } catch (e) {} }, 3000);
+  }
+  function jumpAndReveal(stageN, sourceText) {
+    state.currentStage = stageN;
+    saveState();
+    render();
+    setTimeout(function () { revealText(sourceText); }, 60);
+  }
+  function contentSearchItems() {
+    if (!currentExercise()) return [];
+    var out = [];
+    function add(stageN, glyph, typeWord, labelText, fullText, revealTxt) {
+      var body = String(labelText || '').replace(/\s+/g, ' ').trim();
+      if (!body) return;
+      out.push({
+        num: glyph,
+        label: squish(body, 46),
+        dot: '',
+        q: (typeWord + ' ' + body + ' ' + String(fullText || '')).replace(/\s+/g, ' ').toLowerCase(),
+        run: (function (sn, tx) { return function () { jumpAndReveal(sn, tx); }; })(stageN, revealTxt || body)
+      });
+    }
+    ((state.mselMtg && state.mselMtg.injects) || []).forEach(function (i) {
+      add(5, '\u26a1', 'inject \u5373\u6642\u72c0\u6cc1', (i.time ? i.time + ' ' : '') + (i.message || i.expectedAction || ''), (i.expectedAction || '') + ' ' + (i.fromActor || '') + ' ' + (i.toActor || ''), i.message || i.expectedAction || '');
+    });
+    ((state.mselMtg && state.mselMtg.discussionQuestions) || []).forEach(function (q) {
+      add(5, '\ud83d\udcac', 'question \u554f\u984c \u7814\u8a0e', q.question, '');
+    });
+    ((state.ipm && state.ipm.objectives) || []).forEach(function (o) {
+      add(3, '\ud83c\udfaf', 'objective \u76ee\u6a19', o.specific || o.capability || o.criticalTask, (o.capability || '') + ' ' + (o.criticalTask || '') + ' ' + (o.measurable || ''));
+    });
+    ((state.mpm && state.mpm.modules) || []).forEach(function (m) {
+      add(4, '\ud83e\udde9', 'module \u6a21\u7d44', m.title || m.narrative, m.narrative || '');
+    });
+    ((state.fpm && state.fpm.documents) || []).forEach(function (d) {
+      add(6, '\ud83d\udcc4', 'document \u6587\u4ef6', d.name, (d.owner || '') + ' ' + (d.status || ''));
+    });
+    ((state.aar && state.aar.ipItems) || []).forEach(function (p) {
+      add(9, '\ud83d\udee0', 'finding improvement \u6539\u9032 \u767c\u73fe', p.finding || p.correctiveAction, (p.correctiveAction || '') + ' ' + (p.owner || ''));
+    });
+    return out.slice(0, 60);   // keep the default palette list manageable
+  }
+
+  // ---- 4. Duplicate inject ---------------------------------------------------------
+  function decorateInjectCards() {
+    document.querySelectorAll('#mainContent .inject-card').forEach(function (card) {
+      if (card.querySelector('.v06-dup-inj')) return;
+      var rem = card.querySelector('[data-remove-inj]');
+      if (!rem) return;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'v06-dup-inj';
+      b.setAttribute('data-dup-inj', card.getAttribute('data-inj') || '');
+      b.title = 'Duplicate this inject \u00b7 \u8907\u88fd\u6b64\u5373\u6642\u72c0\u6cc1';
+      b.textContent = '\u29c9';
+      rem.parentNode.insertBefore(b, rem);
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest && e.target.closest('[data-dup-inj]');
+    if (!b) return;
+    e.stopPropagation();
+    var id = b.getAttribute('data-dup-inj');
+    var arr = (state.mselMtg && state.mselMtg.injects) || [];
+    var idx = -1;
+    for (var i = 0; i < arr.length; i++) if (arr[i].id === id) { idx = i; break; }
+    if (idx === -1) return;
+    var clone;
+    try { clone = JSON.parse(JSON.stringify(arr[idx])); } catch (err) { return; }
+    clone.id = uid();
+    arr.splice(idx + 1, 0, clone);
+    saveState();
+    render();
+    toast6('Inject duplicated \u2014 adjust its time and message. \u00b7 \u5df2\u8907\u88fd\u5373\u6642\u72c0\u6cc1\uff0c\u8acb\u8abf\u6574\u6642\u9593\u8207\u5167\u5bb9\u3002');
+  }, true);
+
+  // ---- Command palette entries ----------------------------------------------------
+  var _items6 = buildCmdkItems;
+  buildCmdkItems = function v06CmdkItems() {
+    var items = _items6();
+    if (currentExercise()) {
+      items.push({ num: '\ud83d\udcc5', label: 'Export schedule to calendar (.ics) \u00b7 \u532f\u51fa\u884c\u4e8b\u66c6\u6a94', dot: '',
+        q: 'ics calendar export schedule outlook google \u884c\u4e8b\u66c6 \u532f\u51fa \u65e5\u66c6',
+        run: exportScheduleICS });
+      items = items.concat(contentSearchItems());
+    }
+    return items;
+  };
+
+  // ---- Hook the render pipeline -----------------------------------------------------
+  var _render6 = render;
+  render = function v06Render() {
+    _render6();
+    if (view === 'exercise' && currentExercise()) {
+      decorateDateChips();
+      decorateInjectCards();
+    }
+  };
+})();
+
+
+// =====================================================================
+// v0.7 — IMPROVEMENT-PLAN FOLLOW-THROUGH (program oversight)
+// Additive patch layer in the same style as v0.4–v0.6. HSEEP's weakest
+// link in practice is what happens *after* the AAR — corrective actions
+// scatter across exercises and quietly expire. This layer adds:
+//   1. A cross-exercise tracker overlay listing every open corrective
+//      action in the library — overdue first — with click-through that
+//      opens the owning exercise at Stage 9 and flashes the item
+//   2. The home "Open IP actions" tile becomes the tracker's entry point
+//   3. Due-date chips on every IP item (red once overdue, unless done)
+//   4. EEG cards rated below "P" get a jump straight to the Improvement
+//      Plan, where the existing pull-findings chips take over
+// (Paired core fix above: the home open-IP count now respects .status.)
+// =====================================================================
+(function ipFollowThrough() {
+  'use strict';
+
+  var toast7 = (typeof window !== 'undefined' && window.hseepToast) ? window.hseepToast : function () {};
+  function bi(t) { return (typeof biLbl === 'function') ? biLbl(t) : t; }
+
+  function ensureV07Css() {
+    if (document.getElementById('v07-css')) return;
+    var st = document.createElement('style');
+    st.id = 'v07-css';
+    st.textContent = [
+      '#ipTrackerOv{position:fixed;inset:0;z-index:940;background:rgba(20,16,12,.45);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px 16px;overflow:auto}',
+      '#ipTrackerOv .ipt-panel{background:var(--surface,#fff);color:inherit;border:1px solid rgba(127,127,127,.25);border-radius:14px;max-width:860px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}',
+      '#ipTrackerOv .ipt-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid rgba(127,127,127,.2)}',
+      '#ipTrackerOv .ipt-title{font-weight:700;font-size:15px}',
+      '#ipTrackerOv .ipt-close{margin-left:auto;border:none;background:transparent;font-size:17px;cursor:pointer;opacity:.6;color:inherit}',
+      '#ipTrackerOv .ipt-close:hover{opacity:1}',
+      '#ipTrackerOv .ipt-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr auto;gap:4px 14px;padding:12px 18px;border-bottom:1px solid rgba(127,127,127,.12);cursor:pointer}',
+      '#ipTrackerOv .ipt-row:hover{background:rgba(127,127,127,.07)}',
+      '#ipTrackerOv .ipt-ex{font-size:12px;opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+      '#ipTrackerOv .ipt-find{font-size:13px;line-height:1.45}',
+      '#ipTrackerOv .ipt-meta{font-size:11px;opacity:.7;grid-column:1/3}',
+      '#ipTrackerOv .ipt-due{font-size:11px;justify-self:end;align-self:start;padding:4px 8px;border-radius:999px;border:1px solid rgba(127,127,127,.3);white-space:nowrap;font-variant-numeric:tabular-nums}',
+      '#ipTrackerOv .ipt-due.late{color:#c2452d;border-color:rgba(194,69,45,.5);background:rgba(194,69,45,.08)}',
+      '#ipTrackerOv .ipt-empty{padding:28px 18px;text-align:center;opacity:.7;font-size:13px}',
+      '.v07-eeg-jump{margin-top:10px;border:1px dashed rgba(127,127,127,.5);background:transparent;color:inherit;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;opacity:.8}',
+      '.v07-eeg-jump:hover{opacity:1;border-style:solid}',
+      '@keyframes v07pulse{0%{box-shadow:0 0 0 0 rgba(240,160,20,.55)}100%{box-shadow:0 0 0 16px rgba(240,160,20,0)}}',
+      '.v07-reveal{animation:v07pulse 1.2s ease-out 2;border-radius:10px}'
+    ].join('\n');
+    document.head.appendChild(st);
+  }
+
+  function daysFrom(iso) {
+    var t = new Date(iso + 'T12:00:00');
+    if (isNaN(t)) return null;
+    var n = new Date();
+    n.setHours(12, 0, 0, 0);
+    return Math.round((t - n) / 86400000);
+  }
+
+  // ---- 1. Cross-exercise tracker ------------------------------------------
+  // Same open-item predicate as the home tile (correctiveAction present and
+  // status not 'done'), so the tile number and the tracker rows always agree.
+  function collectOpenIp() {
+    var rows = [];
+    ((library && library.exercises) || []).forEach(function (ex) {
+      var items = (ex.data && ex.data.aar && ex.data.aar.ipItems) || [];
+      items.forEach(function (it, idx) {
+        if (!(it.correctiveAction && it.status !== 'done')) return;
+        rows.push({
+          exId: ex.meta.id,
+          exName: ex.meta.name || 'Untitled',
+          ipId: it.id,
+          num: idx + 1,
+          it: it,
+          d: it.dueDate ? daysFrom(it.dueDate) : null
+        });
+      });
+    });
+    rows.sort(function (a, b) {                 // overdue → due soonest → undated
+      var ao = a.d !== null && a.d < 0, bo = b.d !== null && b.d < 0;
+      if (ao !== bo) return ao ? -1 : 1;
+      if (a.d === null && b.d === null) return a.exName.localeCompare(b.exName);
+      if (a.d === null) return 1;
+      if (b.d === null) return -1;
+      return a.d - b.d;
+    });
+    return rows;
+  }
+
+  function closeIpTracker() {
+    var o = document.getElementById('ipTrackerOv');
+    if (o) o.remove();
+  }
+
+  function jumpToIp(exId, ipId) {
+    if (view !== 'exercise' || !currentExercise() || currentExercise().meta.id !== exId) openExercise(exId);
+    state.currentStage = 9;
+    saveState();
+    render();
+    setTimeout(function () {
+      var el = document.querySelector('.ip-item[data-ip="' + ipId + '"]');
+      if (!el) return;
+      if (el.scrollIntoView) { try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { try { el.scrollIntoView(); } catch (e2) {} } }
+      el.classList.add('v07-reveal');
+      setTimeout(function () { try { el.classList.remove('v07-reveal'); } catch (e) {} }, 3000);
+    }, 80);
+  }
+
+  function openIpTracker() {
+    ensureV07Css();
+    closeIpTracker();
+    var rows = collectOpenIp();
+    var ov = document.createElement('div');
+    ov.id = 'ipTrackerOv';
+    var panel = document.createElement('div');
+    panel.className = 'ipt-panel';
+    var head = document.createElement('div');
+    head.className = 'ipt-head';
+    var title = document.createElement('div');
+    title.className = 'ipt-title';
+    title.textContent = bi('Open corrective actions \u00b7 \u672a\u7d50\u6848\u6539\u9032\u4e8b\u9805') + ' \u2014 ' + rows.length;
+    var x = document.createElement('button');
+    x.className = 'ipt-close';
+    x.type = 'button';
+    x.textContent = '\u2715';
+    x.title = bi('Close \u00b7 \u95dc\u9589');
+    head.appendChild(title);
+    head.appendChild(x);
+    panel.appendChild(head);
+    if (!rows.length) {
+      var em = document.createElement('div');
+      em.className = 'ipt-empty';
+      em.textContent = bi('No open corrective actions across your exercises. \u00b7 \u5404\u6f14\u7fd2\u76ee\u524d\u6c92\u6709\u672a\u7d50\u6848\u7684\u6539\u9032\u4e8b\u9805\u3002');
+      panel.appendChild(em);
+    } else {
+      rows.forEach(function (r) {
+        var row = document.createElement('div');
+        row.className = 'ipt-row';
+        row.setAttribute('data-ipt', r.exId + '|' + r.ipId);
+        var ex = document.createElement('div');
+        ex.className = 'ipt-ex';
+        ex.textContent = r.exName;
+        var find = document.createElement('div');
+        find.className = 'ipt-find';
+        var txt = String(r.it.finding || r.it.correctiveAction || '').replace(/\s+/g, ' ').trim();
+        find.textContent = 'IP-' + String(r.num).padStart(2, '0') + ' \u00b7 ' + (txt.length > 90 ? txt.slice(0, 89) + '\u2026' : txt);
+        var due = document.createElement('div');
+        due.className = 'ipt-due' + ((r.d !== null && r.d < 0) ? ' late' : '');
+        due.textContent = r.it.dueDate || bi('no due date \u00b7 \u672a\u8a2d\u671f\u9650');
+        var meta = document.createElement('div');
+        meta.className = 'ipt-meta';
+        var stt = (typeof IP_STATUSES !== 'undefined') ? IP_STATUSES.find(function (s) { return s.id === r.it.status; }) : null;
+        var bits = [
+          r.it.owner ? r.it.owner : bi('unassigned \u00b7 \u672a\u6307\u5b9a\u8ca0\u8cac\u4eba'),
+          stt ? bi(stt.en + ' \u00b7 ' + stt.zh) : bi('Open \u00b7 \u672a\u958b\u59cb')
+        ];
+        if (r.d !== null && r.d < 0) bits.push(bi((-r.d) + ' d overdue \u00b7 \u903e\u671f ' + (-r.d) + ' \u5929'));
+        meta.textContent = bits.join('\u2003');
+        row.appendChild(ex);
+        row.appendChild(find);
+        row.appendChild(due);
+        row.appendChild(meta);
+        row.addEventListener('click', function () { closeIpTracker(); jumpToIp(r.exId, r.ipId); });
+        panel.appendChild(row);
+      });
+    }
+    x.addEventListener('click', closeIpTracker);
+    ov.addEventListener('click', function (e) { if (e.target === ov) closeIpTracker(); });
+    ov.appendChild(panel);
+    document.body.appendChild(ov);
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.getElementById('ipTrackerOv')) closeIpTracker();
+  });
+
+  // ---- 2. Home tile → tracker ------------------------------------------------
+  function decorateHomeIpTile() {
+    var tiles = document.querySelectorAll('.bento-tile.bento-stat');
+    for (var i = 0; i < tiles.length; i++) {
+      var lb = tiles[i].querySelector('.bento-stat-label');
+      if (!lb || lb.textContent.indexOf('Open IP actions') === -1) continue;
+      if (tiles[i].getAttribute('data-v07')) return;
+      ensureV07Css();
+      tiles[i].setAttribute('data-v07', '1');
+      tiles[i].style.cursor = 'pointer';
+      tiles[i].title = bi('View open corrective actions \u00b7 \u6aa2\u8996\u672a\u7d50\u6848\u6539\u9032\u4e8b\u9805');
+      tiles[i].setAttribute('role', 'button');
+      tiles[i].tabIndex = 0;
+      tiles[i].addEventListener('click', openIpTracker);
+      tiles[i].addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openIpTracker(); }
+      });
+      return;
+    }
+  }
+
+  // ---- 3. IP due-date chips -----------------------------------------------------
+  // Reuses the v0.6 chip styling (guaranteed present in exercise view);
+  // 'late' only applies while the item is not done.
+  function refreshIpChip(input) {
+    var m = /^(.+)\.dueDate$/.exec(input.getAttribute('data-ip-field') || '');
+    if (!m) return;
+    var chip = input.parentNode && input.parentNode.querySelector('.v06-datechip[data-for-ip="' + m[1] + '"]');
+    var d = input.value ? daysFrom(input.value) : null;
+    if (d === null) { if (chip) chip.remove(); return; }
+    var it = null;
+    var arr = (state.aar && state.aar.ipItems) || [];
+    for (var i = 0; i < arr.length; i++) if (arr[i].id === m[1]) { it = arr[i]; break; }
+    var done = !!(it && it.status === 'done');
+    var cls = '', txt;
+    if (d === 0) { cls = 'today'; txt = bi('today \u00b7 \u4eca\u5929'); }
+    else if (d > 0) { txt = bi('in ' + d + ' d \u00b7 ' + d + ' \u5929\u5f8c'); }
+    else { txt = bi((-d) + ' d overdue \u00b7 \u903e\u671f ' + (-d) + ' \u5929'); if (!done) cls = 'late'; }
+    if (!chip) {
+      chip = document.createElement('span');
+      chip.className = 'v06-datechip';
+      chip.setAttribute('data-for-ip', m[1]);
+      input.insertAdjacentElement('afterend', chip);
+    }
+    chip.className = 'v06-datechip' + (cls ? ' ' + cls : '');
+    chip.textContent = txt;
+  }
+  function decorateIpChips() {
+    document.querySelectorAll('#mainContent input[type="date"][data-ip-field]').forEach(refreshIpChip);
+  }
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t || !t.matches) return;
+    if (t.matches('input[type="date"][data-ip-field]')) { refreshIpChip(t); return; }
+    if (t.matches('select[data-ip-field$=".status"]')) setTimeout(decorateIpChips, 0);
+  }, true);
+
+  // ---- 4. EEG below-P → Improvement Plan jump --------------------------------------
+  function decorateEegCards() {
+    document.querySelectorAll('#mainContent .eeg-card').forEach(function (card) {
+      var r = card.getAttribute('data-rating') || '';
+      var existing = card.querySelector('.v07-eeg-jump');
+      if (!r || r === 'P') { if (existing) existing.remove(); return; }
+      if (existing) return;
+      ensureV07Css();
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'v07-eeg-jump';
+      b.textContent = bi('\u2192 Improvement Plan \u00b7 \u524d\u5f80\u7cbe\u9032\u8a08\u756b\uff08AAR/IP\uff09');
+      b.title = bi('This rating flags an improvement candidate \u2014 pull it into the IP at Stage 9. \u00b7 \u6b64\u8a55\u7b49\u5df2\u5217\u70ba\u7cbe\u9032\u5019\u9078\uff0c\u53ef\u65bc\u7b2c\u4e5d\u968e\u6bb5\u5f15\u5165\u7cbe\u9032\u8a08\u756b\u3002');
+      b.addEventListener('click', function () {
+        state.currentStage = 9;
+        saveState();
+        render();
+      });
+      card.appendChild(b);
+    });
+  }
+
+  // ---- Command palette entry ---------------------------------------------------------
+  var _items7 = buildCmdkItems;
+  buildCmdkItems = function v07CmdkItems() {
+    var items = _items7();
+    items.push({ num: '\ud83d\udee0', label: 'Open corrective actions \u00b7 \u672a\u7d50\u6848\u6539\u9032\u4e8b\u9805', dot: '',
+      q: 'ip tracker corrective actions improvement plan open overdue follow \u6539\u9032 \u7cbe\u9032 \u8ffd\u8e64 \u903e\u671f',
+      run: openIpTracker });
+    return items;
+  };
+
+  // ---- Hook the render pipeline ---------------------------------------------------------
+  var _render7 = render;
+  render = function v07Render() {
+    _render7();
+    if (view === 'home' || !currentExercise()) {
+      decorateHomeIpTile();
+    } else {
+      decorateIpChips();
+      decorateEegCards();
+    }
+  };
 })();
 
 
